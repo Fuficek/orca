@@ -1577,7 +1577,11 @@
       "neutralCount": "Neutral {{count}}",
       "open": "Open",
       "noPullRequest": "This branch has no pull request now.",
-      "refreshComments": "Refresh comments"
+      "refreshComments": "Refresh comments",
+      "fixWith": "Fix with {{agent}}",
+      "updated": "Updated {{time}}",
+      "askToFix": "Ask {{agent}} to fix",
+      "askAiToFix": "Ask AI to fix"
     },
     "mergeSheet": {
       "squashDetail": "One commit on {{base}}",

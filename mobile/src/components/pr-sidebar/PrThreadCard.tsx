@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ActivityIndicator, Pressable, Text, View } from 'react-native'
-import { Check, ExternalLink, Undo2, type LucideIcon } from 'lucide-react-native'
+import { Check, ExternalLink, Sparkles, Undo2, type LucideIcon } from 'lucide-react-native'
 import type { PRComment } from '../../../../src/shared/github/comment-types'
 import {
   getPRCommentGroupRoot,
@@ -21,6 +21,10 @@ import type { Translate } from '../../i18n/mobile-i18n'
 import { useMobileTranslation } from '../../i18n/use-mobile-translation'
 import { openExternalLink } from '../../platform/external-link'
 import { canEditComment, isResolvableComment } from '../../session/pr-comment-actions'
+import {
+  threadDiffLines,
+  type DiffHunkLine
+} from '../../../../src/shared/github/pr-comment-diff-hunk'
 import { ConfirmModal } from '../ConfirmModal'
 import { CommentMarkdown } from './CommentMarkdown'
 import { PRCommentComposer } from './PRCommentComposer'
@@ -89,12 +93,15 @@ export function PrThreadCard({
   group,
   actions,
   botAuthorOverrides,
-  now
+  now,
+  askToFix
 }: {
   group: PRCommentGroup
   actions?: PrThreadActions
   botAuthorOverrides: ReadonlySet<string>
   now: number
+  /** Bot findings offer the same agent launch as desktop's Resolve comments with AI. */
+  askToFix?: { label: string; onPress: () => void; busy: boolean; disabled: boolean }
 }) {
   useMobileColorScheme()
   const t = useMobileTranslation()
@@ -138,6 +145,9 @@ export function PrThreadCard({
           </Pressable>
         ) : null}
       </View>
+      {root.diffHunk && root.line ? (
+        <ThreadCode lines={threadDiffLines(root.diffHunk, root.line, root.startLine)} />
+      ) : null}
       {editing && actions ? (
         <PRCommentComposer
           placeholder={t('pullRequest.commentCard.editPlaceholder', 'Edit comment…')}
@@ -170,6 +180,16 @@ export function PrThreadCard({
       ))}
       {actions && !editing ? (
         <View style={styles.buttons}>
+          {askToFix && bot && group.kind === 'thread' && root.isResolved !== true ? (
+            <PrMiniButton
+              bright
+              icon={Sparkles}
+              label={askToFix.label}
+              onPress={askToFix.onPress}
+              busy={askToFix.busy}
+              disabled={askToFix.disabled}
+            />
+          ) : null}
           {canResolve ? (
             <PrMiniButton
               icon={root.isResolved ? Undo2 : Check}
@@ -234,6 +254,32 @@ export function PrThreadCard({
   )
 }
 
+// The lines a thread is about, as GitHub anchored them; replaces the old file.ts:L42 label.
+function ThreadCode({ lines }: { lines: DiffHunkLine[] }) {
+  useMobileColorScheme()
+  return (
+    <View style={styles.code}>
+      {lines.map((line) => (
+        <Text key={line.index} style={styles.codeText} numberOfLines={1}>
+          <Text style={styles.codeMuted}>{line.number ?? ' '} </Text>
+          <Text
+            style={
+              line.sign === '+'
+                ? styles.codeAdded
+                : line.sign === '-'
+                  ? styles.codeRemoved
+                  : styles.codeMuted
+            }
+          >
+            {line.sign}
+          </Text>{' '}
+          {line.text}
+        </Text>
+      ))}
+    </View>
+  )
+}
+
 function Avatar({ login }: { login: string }) {
   useMobileColorScheme()
   const initials = login
@@ -289,6 +335,20 @@ export function PrMiniButton({
 }
 
 const styles = themedStyleSheet(() => ({
+  code: {
+    borderRadius: radii.control,
+    backgroundColor: colors.bgPanel,
+    padding: spacing.md,
+    gap: 2
+  },
+  codeText: {
+    color: colors.textPrimary,
+    fontFamily: typography.monoFamily,
+    fontSize: typography.metaSize
+  },
+  codeMuted: { color: colors.textMuted },
+  codeAdded: { color: colors.gitDecorationAdded },
+  codeRemoved: { color: colors.gitDecorationDeleted },
   thread: {
     borderRadius: radii.surface,
     backgroundColor: colors.sheetGroup,

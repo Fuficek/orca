@@ -26,6 +26,7 @@ export function PrCheckFailureCard({
   initiallyOpen,
   onOpen,
   actionable,
+  fixLabel,
   onFix,
   fixBusy,
   fixAvailable,
@@ -37,6 +38,8 @@ export function PrCheckFailureCard({
   initiallyOpen: boolean
   onOpen: () => void
   actionable: boolean
+  /** "Fix with Claude" once the launch agent is known. */
+  fixLabel: string
   onFix: () => void
   fixBusy: boolean
   fixAvailable: boolean
@@ -100,7 +103,7 @@ export function PrCheckFailureCard({
                 <PrMiniButton
                   bright
                   icon={Sparkles}
-                  label={t('pullRequest.screens.fixWithAi', 'Fix with AI')}
+                  label={fixLabel}
                   onPress={onFix}
                   busy={fixBusy}
                   disabled={!fixAvailable}

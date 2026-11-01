@@ -13,6 +13,10 @@ import {
 } from '../../../../src/shared/pr-comment-groups'
 import { isBotPRComment } from '../../../../src/shared/pr-comment-audience'
 import { canAddRootComment } from '../../session/pr-comment-actions'
+import { buildPRCommentsResolutionPrompt } from '../../../../src/shared/github/pr-comments-resolution-prompt'
+import { useMobileLaunchAgentLabel } from '../../session/use-mobile-launch-agent-label'
+import { useHostProtocolGates } from '../host-protocol-gates-context'
+import { AgentLaunchNotice } from '../AgentLaunchNotice'
 import { useNow } from '../../hooks/use-now'
 import { useKeyboardOcclusion } from '../../platform/keyboard-occlusion'
 import { NavBarButton } from '../nav-bar/NavBarButton'
@@ -72,6 +76,39 @@ export function PrCommentsScreen({ tab, onBack, bottomInset = 0 }: ScreenProps) 
     [commentActions, data?.pr.prRepo, isPr]
   )
   const canComment = isPr && canAddRootComment(data?.pr.state ?? null)
+  const { hostCapabilities } = useHostProtocolGates()
+  const hasBotFindings = unresolved.some((group) =>
+    isBotPRComment(getPRCommentGroupRoot(group), tab.botAuthorOverrides)
+  )
+  const askAgent = useMobileLaunchAgentLabel({
+    client: tab.client,
+    worktreeId: tab.worktreeId,
+    hostCapabilities,
+    actionId: 'resolveComments',
+    enabled: hasBotFindings
+  })
+  const askNotice = tab.triage.noticeFor('resolve-comments')
+  // One bot finding per launch, through desktop's own Resolve comments prompt.
+  const askToFix = (group: PRCommentGroup) =>
+    data
+      ? {
+          label: askAgent
+            ? t('pullRequest.screens.askToFix', 'Ask {{agent}} to fix', { agent: askAgent })
+            : t('pullRequest.screens.askAiToFix', 'Ask AI to fix'),
+          busy: tab.triage.isBusy('resolve-comments'),
+          disabled: tab.triage.availability !== 'available',
+          onPress: () =>
+            void tab.triage.launch('resolve-comments', () =>
+              buildPRCommentsResolutionPrompt({
+                reviewKind: 'PR',
+                reviewNumber: data.pr.number,
+                reviewTitle: data.pr.title,
+                reviewUrl: data.pr.url,
+                groups: [group]
+              })
+            )
+        }
+      : undefined
 
   return (
     <ScreenFrame
@@ -167,6 +204,7 @@ export function PrCommentsScreen({ tab, onBack, bottomInset = 0 }: ScreenProps) 
               actions={cardActions}
               botAuthorOverrides={tab.botAuthorOverrides}
               now={now}
+              askToFix={askToFix(group)}
             />
           ))}
           {open.length > shown.length ? (
@@ -218,6 +256,16 @@ export function PrCommentsScreen({ tab, onBack, bottomInset = 0 }: ScreenProps) 
                 </Pressable>
               ) : null}
             </View>
+          ) : null}
+          {hasBotFindings ? (
+            <AgentLaunchNotice
+              availability={tab.triage.availability}
+              success={askNotice.success}
+              error={askNotice.error}
+              warning={askNotice.warning}
+              undeliveredPrompt={askNotice.undeliveredPrompt}
+              errorStyle={styles.error}
+            />
           ) : null}
           {commentActions.error ? <Text style={styles.error}>{commentActions.error}</Text> : null}
         </ScrollView>
