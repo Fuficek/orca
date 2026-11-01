@@ -95,16 +95,16 @@ async function shouldSuppressForegroundPush(
     }
     return true
   }
+  // An older host ignores this registration filter, so its pushes are filtered here too.
+  if (!allowsMobilePushAlertKind(preferences, payload.source, payload.agentState)) {
+    return true
+  }
   const hostId = await resolvePushHostId(payload)
   // Suppress removed-host pushes: stale gateway registrations cannot route a useful tap and the phone can no longer disable them per host.
   if (!hostId) {
     return true
   }
   if (!(await loadPushNotificationsEnabled())) {
-    return true
-  }
-  // An older host ignores this registration filter, so its pushes are filtered here too.
-  if (!allowsMobilePushAlertKind(preferences, payload.source, payload.agentState)) {
     return true
   }
   if (shouldSuppressNotificationWhileViewing(payload, hostId, preferences.suppressWhileViewing)) {

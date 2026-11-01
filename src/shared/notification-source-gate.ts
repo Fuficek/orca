@@ -1,4 +1,4 @@
-import { mapPushAgentState } from './mobile-push-alert'
+import { isAgentNeedsInputAlert } from './mobile-push-alert'
 import type { NotificationSettings } from './notification-settings-types'
 
 type SourceGateSettings = Pick<
@@ -21,8 +21,7 @@ export function isNotificationSourceEnabled(
   if (source !== 'agent-task-complete') {
     return true
   }
-  // Same split the phone applies, so desktop and phone never disagree on which alert is which.
-  return mapPushAgentState(source, agentState) === 'needs-input'
+  return isAgentNeedsInputAlert(source, agentState)
     ? settings.agentNeedsInput
     : settings.agentTaskComplete
 }

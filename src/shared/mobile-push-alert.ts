@@ -34,16 +34,20 @@ export function mapPushAgentState(
   return state === undefined || state === 'done' || state === 'finished' ? 'finished' : undefined
 }
 
-/** Drops finished-agent alerts only; bells and the push test follow the desktop's own settings. Accepts raw or already-mapped agent states. */
+export function isAgentNeedsInputAlert(source: string | undefined, agentState: string | undefined) {
+  return source === 'agent-task-complete' && mapPushAgentState(source, agentState) === 'needs-input'
+}
+
+/** Drops finished-agent alerts only; bells and the push test follow the desktop's own settings. */
 export function allowsMobilePushAlertKind(
   filter: MobilePushFilter,
   source: string | undefined,
-  agentState: string | null | undefined
+  agentState: string | undefined
 ): boolean {
   return (
     !filter.onlyWhenAgentNeedsInput ||
     source !== 'agent-task-complete' ||
-    mapPushAgentState(source, agentState ?? undefined) === 'needs-input'
+    isAgentNeedsInputAlert(source, agentState)
   )
 }
 

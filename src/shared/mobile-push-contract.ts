@@ -15,7 +15,6 @@ export type MobilePushApnsEnvironment = (typeof MOBILE_PUSH_APNS_ENVIRONMENTS)[n
 
 export type MobilePushFilter = {
   onlyWhenDesktopAway?: boolean
-  /** Hosts that predate this field ignore it, so the phone applies it to what it presents too. */
   onlyWhenAgentNeedsInput?: boolean
   sound?: boolean
 }
