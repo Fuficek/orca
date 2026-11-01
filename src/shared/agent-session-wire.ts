@@ -13,7 +13,6 @@ import type {
   AgentSessionQueuePause
 } from './agent-session-queued-message-wire'
 
-export type { AgentSessionOptionsResult } from './agent-session-options-result'
 export * from './agent-session-wire-refusals'
 export * from './agent-session-queued-message-wire'
 export * from './agent-session-turn-completion-wire'
@@ -30,7 +29,7 @@ import type {
 import type { AgentTurnOutcome } from './agent-turn-outcome'
 import type { AgentSessionRecord } from './agent-session-record'
 import type { AgentProviderSessionMetadata } from './agent-session-resume'
-import type { NativeChatSubagentEntry } from './native-chat-types'
+import type { NativeChatSubagentEntry } from './native-chat/native-chat-types'
 import type { StructuredAgentSessionProjectedStatus } from './structured-agent-session-projection'
 
 export type { AgentSessionHandoffStatus } from './agent-session-handoff-status'

@@ -1,27 +1,28 @@
-import { createHash } from 'node:crypto'
-import type {
-  RuntimeWorktreePsConditionalResult,
-  RuntimeWorktreePsResult
-} from '../../../shared/runtime-types'
+import { contentSnapshotId } from './content-snapshot-id'
+// Any catalog of opaque rows: the desktop's own worktree.ps rows or a paired server's.
+type Catalog = { worktrees: unknown[] }
 
-// Use 192 SHA-256 bits for practical collision resistance; this is catalog identity, not authentication.
-const SNAPSHOT_ID_LENGTH = 32
+export type WorktreeCatalogSnapshotReply<Result extends Catalog> =
+  | (Result & { snapshotId: string })
+  | { unchanged: true; snapshotId: string }
+  | (Omit<Result, 'worktrees'> & {
+      snapshotId: string
+      baseSnapshotId: string
+      rowsFromBase: (number | Result['worktrees'][number])[]
+    })
+
 // Why: home, the host screen and other phones each poll their own base; a dozen covers them without holding rows.
 const RECENT_SNAPSHOT_LIMIT = 16
 
 // Row hashes only, never row content: eviction costs one full reply, never correctness.
 const recentRowHashes = new Map<string, readonly string[]>()
 
-function digest(value: string): string {
-  return createHash('sha256').update(value).digest('base64url').slice(0, SNAPSHOT_ID_LENGTH)
-}
-
-function identify(result: RuntimeWorktreePsResult): {
+function identify(result: Catalog): {
   snapshotId: string
   rowHashes: string[]
 } {
-  const rowHashes = result.worktrees.map((row) => digest(JSON.stringify(row)))
-  const snapshotId = digest(JSON.stringify({ ...result, worktrees: rowHashes }))
+  const rowHashes = result.worktrees.map((row) => contentSnapshotId(JSON.stringify(row)))
+  const snapshotId = contentSnapshotId(JSON.stringify({ ...result, worktrees: rowHashes }))
   return { snapshotId, rowHashes }
 }
 
@@ -37,11 +38,11 @@ function remember(snapshotId: string, rowHashes: readonly string[]): void {
   }
 }
 
-function rowsFromBase(
-  result: RuntimeWorktreePsResult,
+function rowsFromBase<Row>(
+  result: { worktrees: Row[] },
   rowHashes: readonly string[],
   baseRowHashes: readonly string[]
-): (number | RuntimeWorktreePsResult['worktrees'][number])[] {
+): (number | Row)[] {
   const baseIndexByHash = new Map<string, number>()
   baseRowHashes.forEach((hash, index) => {
     if (!baseIndexByHash.has(hash)) {
@@ -52,11 +53,11 @@ function rowsFromBase(
 }
 
 // ETag-style content identity survives concurrency, limits and restarts; unchanged is valid exactly when serialized catalogs match.
-export function resolveWorktreeCatalogSnapshot(
-  result: RuntimeWorktreePsResult,
+export function resolveWorktreeCatalogSnapshot<Result extends Catalog>(
+  result: Result,
   afterSnapshotId: string | null,
   options?: { acceptRowDelta?: boolean }
-): RuntimeWorktreePsConditionalResult {
+): WorktreeCatalogSnapshotReply<Result> {
   const { snapshotId, rowHashes } = identify(result)
   const baseRowHashes =
     options?.acceptRowDelta === true && afterSnapshotId !== null

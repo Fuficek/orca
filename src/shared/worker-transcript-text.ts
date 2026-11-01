@@ -6,7 +6,7 @@ import {
   subagentGroupFallbackText
 } from './native-chat/transcript/native-chat-subagent-summary'
 import { subagentFallbackText } from './native-chat/transcript/native-chat-subagent-items'
-import type { NativeChatMessage } from './native-chat-types'
+import type { NativeChatMessage } from './native-chat/native-chat-types'
 
 export function formatWorkerTranscriptMessage(message: NativeChatMessage): string {
   const fallbacks = workerTranscriptBlockFallbacks(message.blocks)
