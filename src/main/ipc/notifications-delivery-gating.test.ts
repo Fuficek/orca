@@ -46,7 +46,6 @@ describe('registerNotificationHandlers', () => {
         notifications: {
           enabled: true,
           agentTaskComplete: true,
-          agentNeedsInput: true,
           terminalBell: true,
           suppressWhenFocused: true
         }
@@ -68,7 +67,6 @@ describe('registerNotificationHandlers', () => {
           notifications: {
             enabled: true,
             agentTaskComplete: true,
-            agentNeedsInput: true,
             terminalBell: true,
             suppressWhenFocused: true
           }
@@ -100,7 +98,6 @@ describe('registerNotificationHandlers', () => {
           notifications: {
             enabled: true,
             agentTaskComplete: true,
-            agentNeedsInput: true,
             terminalBell: true,
             suppressWhenFocused: true
           }
@@ -122,7 +119,6 @@ describe('registerNotificationHandlers', () => {
         notifications: {
           enabled: false,
           agentTaskComplete: true,
-          agentNeedsInput: true,
           terminalBell: true,
           suppressWhenFocused: true
         }
@@ -150,7 +146,6 @@ describe('registerNotificationHandlers', () => {
         notifications: {
           enabled: true,
           agentTaskComplete: true,
-          agentNeedsInput: true,
           terminalBell: true,
           suppressWhenFocused: true
         }
@@ -172,7 +167,6 @@ describe('registerNotificationHandlers', () => {
           notifications: {
             enabled: true,
             agentTaskComplete: true,
-            agentNeedsInput: true,
             terminalBell: true,
             suppressWhenFocused: true
           }
@@ -231,7 +225,6 @@ describe('registerNotificationHandlers', () => {
         notifications: {
           enabled: true,
           agentTaskComplete: false,
-          agentNeedsInput: false,
           terminalBell: true,
           suppressWhenFocused: true
         }
@@ -251,7 +244,6 @@ describe('registerNotificationHandlers', () => {
         notifications: {
           enabled: true,
           agentTaskComplete: true,
-          agentNeedsInput: true,
           terminalBell: true,
           suppressWhenFocused: false
         }
@@ -282,7 +274,6 @@ describe('registerNotificationHandlers', () => {
         notifications: {
           enabled: true,
           agentTaskComplete: true,
-          agentNeedsInput: true,
           terminalBell: true,
           suppressWhenFocused: false
         }
@@ -314,7 +305,6 @@ describe('registerNotificationHandlers', () => {
         notifications: {
           enabled: true,
           agentTaskComplete: true,
-          agentNeedsInput: true,
           terminalBell: true,
           suppressWhenFocused: false
         }
@@ -342,7 +332,6 @@ describe('registerNotificationHandlers', () => {
           notifications: {
             enabled: true,
             agentTaskComplete: true,
-            agentNeedsInput: true,
             terminalBell: true,
             suppressWhenFocused: false
           }
@@ -368,7 +357,6 @@ describe('registerNotificationHandlers', () => {
         notifications: {
           enabled: true,
           agentTaskComplete: true,
-          agentNeedsInput: true,
           terminalBell: true,
           suppressWhenFocused: false
         }
