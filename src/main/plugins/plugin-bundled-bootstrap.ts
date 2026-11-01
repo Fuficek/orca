@@ -82,6 +82,15 @@ async function readBundledPluginIndex(
   return bundledPluginIndexSchema.parse(JSON.parse(await readFile(indexPath, 'utf8')))
 }
 
+/** Whether this release ships the plugin; false when the index can't be read. */
+export async function isBundledPluginKey(root: string, pluginKey: string): Promise<boolean> {
+  if (!hasOfficialPluginPublisher(pluginKey)) {
+    return false
+  }
+  const index = await readBundledPluginIndex(root).catch(() => null)
+  return index?.plugins.some((entry) => entry.pluginKey === pluginKey) ?? false
+}
+
 async function resolveBundlePath(root: string, path: string): Promise<string> {
   const [resolvedRoot, resolvedPath] = await Promise.all([
     realpath(root),
@@ -128,6 +137,10 @@ export async function bootstrapBundledPlugins(options: {
   }
   for (const entry of index.plugins) {
     const locked = lock.plugins[entry.pluginKey]
+    // Why: a catalog install or update of the same plugin is the user's choice; never downgrade it.
+    if (locked && locked.source.kind !== 'bundled') {
+      continue
+    }
     if (
       locked?.source.kind === 'bundled' &&
       locked.source.bundleId === entry.pluginKey &&

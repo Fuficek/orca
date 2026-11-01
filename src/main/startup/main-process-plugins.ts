@@ -17,6 +17,7 @@ import { isPluginAutoUpdateOn } from '../../shared/plugins/catalog/plugin-update
 import { PluginBundledBootstrapCoordinator } from '../plugins/plugin-bundled-bootstrap-coordinator'
 import { getPluginsDataDir } from '../plugins/plugin-discovery'
 import { resolveBundledPluginRoot } from '../plugins/plugin-bundled-bootstrap'
+import { approveBundledPluginsFromStore } from '../plugins/plugin-bundled-approval'
 import { resolvePluginHostEntryPath } from '../plugins/workers/plugin-host-process'
 import { applyPluginConsent, applyPluginEnablement } from '../plugins/plugin-enablement'
 import { clearRemovedPluginSettings } from '../plugins/plugin-removal-settings'
@@ -99,6 +100,11 @@ export async function initializeMainProcessPlugins(runtime: OrcaRuntimeService):
     blockedPluginReason: (pluginKey) => state.pluginKillListService?.reason(pluginKey) ?? null,
     imageCache: pluginImageCache
   })
+  const bundledPluginRoot = resolveBundledPluginRoot({
+    isPackaged: app.isPackaged,
+    resourcesPath: process.resourcesPath,
+    appPath: app.getAppPath()
+  })
   state.pluginService = new PluginService({
     userDataPath: app.getPath('userData'),
     hostVersion: pluginHostVersion(app.getVersion()),
@@ -111,7 +117,8 @@ export async function initializeMainProcessPlugins(runtime: OrcaRuntimeService):
     getKeybindings: () => state.keybindings?.getOverrides() ?? {},
     getPluginKillListEntry: (pluginKey) => state.pluginKillListService?.find(pluginKey) ?? null,
     hostEntryPath: resolvePluginHostEntryPath(app.getAppPath(), app.isPackaged),
-    getDesktopFrameServices: getPluginDesktopFrameServices
+    getDesktopFrameServices: getPluginDesktopFrameServices,
+    bundledPluginRoot
   })
   const pluginService = state.pluginService
   const pluginAutoUpdater = new PluginAutoUpdater({
@@ -172,11 +179,7 @@ export async function initializeMainProcessPlugins(runtime: OrcaRuntimeService):
     findValidPlugin: (pluginKey) => state.pluginService?.findValidPlugin(pluginKey) ?? null
   })
   const bundledPluginBootstrap = new PluginBundledBootstrapCoordinator({
-    root: resolveBundledPluginRoot({
-      isPackaged: app.isPackaged,
-      resourcesPath: process.resourcesPath,
-      appPath: app.getAppPath()
-    }),
+    root: bundledPluginRoot,
     userDataPath: app.getPath('userData'),
     hostVersion: pluginHostVersion(app.getVersion()),
     isEnabled: () => state.store?.getSettings().pluginSystemEnabled === true,
@@ -184,7 +187,9 @@ export async function initializeMainProcessPlugins(runtime: OrcaRuntimeService):
     // Why: a retired bundled plugin must not leave consent, theme choices or frame storage behind.
     beforeRetire: (pluginKey) => clearRemovedPluginSettings(store, pluginKey),
     afterRetire: (pluginKey) => clearPluginFrameStorage(pluginKey),
-    refreshPlugins: () => state.pluginService?.refresh() ?? Promise.resolve()
+    refreshPlugins: () => state.pluginService?.refresh() ?? Promise.resolve(),
+    approveContentPlugins: (pluginKeys) =>
+      approveBundledPluginsFromStore(store, pluginService, pluginKeys)
   })
   const requestBundledPluginBootstrap = (): void => {
     void bundledPluginBootstrap
