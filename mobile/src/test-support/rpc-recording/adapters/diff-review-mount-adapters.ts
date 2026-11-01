@@ -3,6 +3,9 @@ import type { operationModuleLoader } from '../operation-module-loader'
 
 const WORKTREE = 'repo-9::/w'
 
+const COMMIT_OID = 'c0ffee0123456789abcdef0123456789abcdef01'
+const PARENT_OID = 'beef0123456789abcdef0123456789abcdef0123'
+
 const BRANCH_COMPARE = {
   summary: {
     baseRef: 'origin/main',
@@ -30,7 +33,9 @@ export function diffReviewMountAdapters(
       let diff: unknown = 'unloaded'
       function reviewItem(args: Record<string, unknown>) {
         const scope =
-          args.scope === 'branch' ? 'branch' : args.scope === 'staged' ? 'staged' : 'unstaged'
+          args.scope === 'branch' || args.scope === 'staged' || args.scope === 'commit'
+            ? args.scope
+            : 'unstaged'
         return {
           key: `${scope}:src/app.ts`,
           scope,
@@ -59,6 +64,17 @@ export function diffReviewMountAdapters(
               return value
             })
           }
+          if (name === 'commit-snapshot') {
+            return modules
+              .load<typeof import('../../../session/mobile-diff-review-commit-loader')>(
+                'mobile/src/session/mobile-diff-review-commit-loader.ts'
+              )
+              .loadMobileDiffReviewCommitSnapshot(client, WORKTREE, COMMIT_OID)
+              .then((value) => {
+                snapshot = value
+                return value
+              })
+          }
           if (name === 'branch-compare') {
             return loaders.loadMobileDiffReviewBranchCompare(client, WORKTREE).then((value) => {
               branchCompare = value
@@ -77,7 +93,11 @@ export function diffReviewMountAdapters(
                 // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the branch arm reads only the compare summary's refs and oids.
                 branchCompare: (args.compare === false ? null : BRANCH_COMPARE) as Parameters<
                   typeof loaders.loadMobileDiffReviewDiff
-                >[0]['branchCompare']
+                >[0]['branchCompare'],
+                commit:
+                  args.scope === 'commit'
+                    ? { commitOid: COMMIT_OID, parentOid: PARENT_OID, entries: [] }
+                    : null
               })
               .then((value) => {
                 diff = value
