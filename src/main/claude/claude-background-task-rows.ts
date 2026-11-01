@@ -84,6 +84,12 @@ export class ClaudeBackgroundTaskRows {
 
   observe(message: Record<string, unknown>, observedAt: number = this.now()): boolean {
     this.journaling = { frame: message, observedAt }
+    // Claude wakes the lead for any task the lead launched, rowless subagents included; open that turn at the notification.
+    const toolUseId =
+      message.subtype === 'task_notification' ? taskAliasId(message.tool_use_id) : undefined
+    if (message.type === 'system' && toolUseId && this.deps.isForwardedParentTool(toolUseId)) {
+      this.deps.openOutputTurn?.(message, observedAt)
+    }
     try {
       return this.observeFrame(message)
     } finally {

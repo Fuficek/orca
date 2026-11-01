@@ -110,6 +110,7 @@ function attentionPath(directory: string) {
       ]
     ]),
     readStatusState: () => projectStructuredAgentSessionStatusState(items),
+    readChildWork: () => undefined,
     now: () => 42
   })
   feed.subscribe({
