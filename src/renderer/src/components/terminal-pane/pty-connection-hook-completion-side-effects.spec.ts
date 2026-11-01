@@ -219,6 +219,7 @@ export function registerPtyConnectionHookCompletionSideEffectsTests(): void {
         notifications: {
           enabled: true,
           agentTaskComplete: false,
+          agentNeedsInput: false,
           terminalBell: true,
           suppressWhenFocused: false,
           customSoundPath: null

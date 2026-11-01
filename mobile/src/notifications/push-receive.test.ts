@@ -69,7 +69,7 @@ describe('shouldSuppressForegroundPush', () => {
       notificationEpoch: 'epoch-1'
     })
 
-  it('drops an older host’s finished push when this phone wants only agent questions', async () => {
+  it('drops an older host’s finished-agent push but keeps questions, bells and the push test', async () => {
     storage.set(
       'orca:notificationDeliveryPreferences',
       JSON.stringify({ onlyWhenAgentNeedsInput: true })
@@ -93,7 +93,7 @@ describe('shouldSuppressForegroundPush', () => {
           source: 'terminal-bell'
         })
       )
-    ).resolves.toBe(true)
+    ).resolves.toBe(false)
   })
 
   it('allows one eligible native push and suppresses an in-process duplicate', async () => {

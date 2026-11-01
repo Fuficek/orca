@@ -37,6 +37,7 @@ describe('registerNotificationHandlers', () => {
         notifications: {
           enabled: true,
           agentTaskComplete: true,
+          agentNeedsInput: true,
           terminalBell: false,
           suppressWhenFocused: true
         }
@@ -72,6 +73,7 @@ describe('registerNotificationHandlers', () => {
         notifications: {
           enabled: true,
           agentTaskComplete: true,
+          agentNeedsInput: true,
           terminalBell: false,
           suppressWhenFocused: false
         }
@@ -124,6 +126,7 @@ describe('registerNotificationHandlers', () => {
         notifications: {
           enabled: true,
           agentTaskComplete: true,
+          agentNeedsInput: true,
           terminalBell: false,
           suppressWhenFocused: false
         }

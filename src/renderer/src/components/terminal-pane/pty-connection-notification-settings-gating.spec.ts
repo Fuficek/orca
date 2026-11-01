@@ -123,6 +123,7 @@ export function registerPtyConnectionNotificationSettingsGatingTests(): void {
         notifications: {
           enabled: true,
           agentTaskComplete: false,
+          agentNeedsInput: false,
           terminalBell: true,
           suppressWhenFocused: false,
           customSoundPath: null
@@ -169,6 +170,7 @@ export function registerPtyConnectionNotificationSettingsGatingTests(): void {
         notifications: {
           enabled: true,
           agentTaskComplete: false,
+          agentNeedsInput: false,
           terminalBell: true,
           suppressWhenFocused: false,
           customSoundPath: null
@@ -234,6 +236,7 @@ export function registerPtyConnectionNotificationSettingsGatingTests(): void {
         notifications: {
           enabled: true,
           agentTaskComplete: false,
+          agentNeedsInput: false,
           terminalBell: true,
           suppressWhenFocused: false,
           customSoundPath: null
@@ -287,6 +290,7 @@ export function registerPtyConnectionNotificationSettingsGatingTests(): void {
         notifications: {
           enabled: true,
           agentTaskComplete: false,
+          agentNeedsInput: false,
           terminalBell: true,
           suppressWhenFocused: false,
           customSoundPath: null
@@ -352,6 +356,7 @@ export function registerPtyConnectionNotificationSettingsGatingTests(): void {
         notifications: {
           enabled: true,
           agentTaskComplete: true,
+          agentNeedsInput: true,
           terminalBell: true,
           suppressWhenFocused: false,
           customSoundPath: null
@@ -414,6 +419,7 @@ export function registerPtyConnectionNotificationSettingsGatingTests(): void {
         notifications: {
           enabled: true,
           agentTaskComplete: true,
+          agentNeedsInput: true,
           terminalBell: true,
           suppressWhenFocused: false,
           customSoundPath: null
@@ -476,6 +482,7 @@ export function registerPtyConnectionNotificationSettingsGatingTests(): void {
         notifications: {
           enabled: true,
           agentTaskComplete: true,
+          agentNeedsInput: true,
           terminalBell: true,
           suppressWhenFocused: false,
           customSoundPath: null
@@ -528,6 +535,7 @@ export function registerPtyConnectionNotificationSettingsGatingTests(): void {
         notifications: {
           enabled: true,
           agentTaskComplete: true,
+          agentNeedsInput: true,
           terminalBell: true,
           suppressWhenFocused: false,
           customSoundPath: null
@@ -592,6 +600,7 @@ export function registerPtyConnectionNotificationSettingsGatingTests(): void {
         notifications: {
           enabled: true,
           agentTaskComplete: false,
+          agentNeedsInput: false,
           terminalBell: true,
           suppressWhenFocused: false,
           customSoundPath: null

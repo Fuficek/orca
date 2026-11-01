@@ -34,7 +34,7 @@ export function mapPushAgentState(
   return state === undefined || state === 'done' || state === 'finished' ? 'finished' : undefined
 }
 
-/** Accepts raw agent states and the already-mapped state a push payload carries. */
+/** Drops finished-agent alerts only; bells and the push test follow the desktop's own settings. Accepts raw or already-mapped agent states. */
 export function allowsMobilePushAlertKind(
   filter: MobilePushFilter,
   source: string | undefined,
@@ -42,7 +42,8 @@ export function allowsMobilePushAlertKind(
 ): boolean {
   return (
     !filter.onlyWhenAgentNeedsInput ||
-    (source !== undefined && mapPushAgentState(source, agentState ?? undefined) === 'needs-input')
+    source !== 'agent-task-complete' ||
+    mapPushAgentState(source, agentState ?? undefined) === 'needs-input'
   )
 }
 
