@@ -18,6 +18,7 @@ import {
   structuredAgentSessionTabId
 } from '../../shared/structured-agent-session-projection'
 import { getRepoIdFromWorktreeId } from '../../shared/worktree/id'
+import { isNotificationSourceEnabled } from '../../shared/notification-source-gate'
 import { parseWorkspaceKey } from '../../shared/workspace-scope'
 import { buildNotificationOptions } from '../ipc/notification-options'
 import type { MobileNotificationDispatchEvent } from './runtime-mobile-notification-controller'
@@ -108,7 +109,11 @@ export function createStructuredAttentionMobileDelivery(
         getRuntimeDesktopSurface().translateNotification
       )
       // Apply the desktop fan-out preferences to phone delivery too.
-      const desktopAllowed = settings.enabled && settings.agentTaskComplete
+      const desktopAllowed = isNotificationSourceEnabled(
+        settings,
+        'agent-task-complete',
+        news.agentState
+      )
       deps.dispatch({
         type: 'notification',
         emittedAt: deps.now(),

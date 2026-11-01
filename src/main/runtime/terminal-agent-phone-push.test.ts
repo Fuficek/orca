@@ -62,6 +62,7 @@ function harness(
     readNotificationSettings: () => ({
       enabled: true,
       agentTaskComplete: true,
+      agentNeedsInput: true,
       terminalBell: true,
       suppressWhenFocused: true,
       customSoundId: 'system',
@@ -294,6 +295,7 @@ describe('TerminalAgentPhonePush', () => {
       readNotificationSettings: () => ({
         enabled: false,
         agentTaskComplete: true,
+        agentNeedsInput: true,
         terminalBell: true,
         suppressWhenFocused: true,
         customSoundId: 'system',

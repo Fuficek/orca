@@ -34,11 +34,24 @@ export function mapPushAgentState(
   return state === undefined || state === 'done' || state === 'finished' ? 'finished' : undefined
 }
 
+/** Accepts raw agent states and the already-mapped state a push payload carries. */
+export function allowsMobilePushAlertKind(
+  filter: MobilePushFilter,
+  source: string | undefined,
+  agentState: string | null | undefined
+): boolean {
+  return (
+    !filter.onlyWhenAgentNeedsInput ||
+    (source !== undefined && mapPushAgentState(source, agentState ?? undefined) === 'needs-input')
+  )
+}
+
 export function allowsMobilePushDelivery(filter: MobilePushFilter, event: AlertEvent): boolean {
   return (
     event.type === 'notification' &&
     event.desktopAllowed !== false &&
-    (!filter.onlyWhenDesktopAway || event.desktopAway !== false)
+    (!filter.onlyWhenDesktopAway || event.desktopAway !== false) &&
+    allowsMobilePushAlertKind(filter, event.source, event.agentState)
   )
 }
 

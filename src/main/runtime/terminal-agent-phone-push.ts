@@ -4,6 +4,7 @@ import { agentMainAgentVerdict } from '../../shared/agent-main-agent-verdict'
 import { buildAgentNotificationId } from '../../shared/agent-notification-id'
 import type { AgentStatusIpcPayload } from '../../shared/agent-status-ipc-payload'
 import { reserveNotificationCooldown } from '../../shared/notification-burst-cooldown'
+import { isNotificationSourceEnabled } from '../../shared/notification-source-gate'
 import type {
   NotificationDispatchRequest,
   NotificationSettings
@@ -98,7 +99,8 @@ export class TerminalAgentPhonePush {
     }
     const settings = this.deps.readNotificationSettings()
     // The window's own fan-out gates the phone on these same preferences.
-    const desktopAllowed = settings?.enabled !== false && settings?.agentTaskComplete !== false
+    const desktopAllowed =
+      !settings || isNotificationSourceEnabled(settings, news.event.source, news.event.agentState)
     const now = this.deps.now()
     const burstKey = JSON.stringify([desktopAllowed, news.event.agentState, news.worktreeId])
     if (!reserveNotificationCooldown(this.recentDispatches, burstKey, now)) {
